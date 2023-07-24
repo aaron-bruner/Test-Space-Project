@@ -1,0 +1,34 @@
+name: Build Project
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest
+
+    env:
+      Solution_Name: "Test Space Project.sln"
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Build the Solution
+      run: msbuild $env:Solution_Name /m -t:rebuild
+
+    - name: JetBrains ReSharper Inspect Code
+      uses: JetBrains/ReSharper-InspectCode@v0.3
+      with:
+        solution: $env:Solution_Name
+        tool-version: 2023.2.0-eap10
